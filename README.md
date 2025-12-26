@@ -5,12 +5,12 @@
 
 > Here are some ideas to get you started
 
-- 🔭 I’m currently working on system engineering.
+- 🔭 I’m currently working on system engineer.
 - 🌱 I’m currently learning GitHub.
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me ...
-- 😄 Pronouns ...
-- ⚡ Fun fact ...
+- 👯 I’m looking to collaborate on friends.
+- 🤔 I’m looking for help with 
+- 💬 Ask me about Perl,Node.js and java.
+- 📫 How to reach me e-mail address.
+- 😄 Pronouns him
+- ⚡ Fun fact, I love coffee and drink 3 cups every day!
 
