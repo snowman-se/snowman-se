@@ -8,9 +8,9 @@
 - 🔭 I’m currently working on system engineer.
 - 🌱 I’m currently learning GitHub.
 - 👯 I’m looking to collaborate on friends.
-- 🤔 I’m looking for help with 
+- 🤔 I’m looking for help with GitHub users.
 - 💬 Ask me about Perl,Node.js and java.
 - 📫 How to reach me e-mail address.
-- 😄 Pronouns him
+- 😄 Pronouns him.
 - ⚡ Fun fact, I love coffee and drink 3 cups every day!
 
