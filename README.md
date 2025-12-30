@@ -11,6 +11,6 @@
 - 🤔 I’m looking for help with GitHub users.
 - 💬 Ask me about Perl,Node.js and java.
 - 📫 How to reach me e-mail address.
-- 😄 Pronouns him.
+- 😄 Pronouns snowman.
 - ⚡ Fun fact, I love coffee and drink 3 cups every day!
 
