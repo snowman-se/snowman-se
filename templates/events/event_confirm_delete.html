@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>イベント削除の確認</h2>
+<p>「<strong>{{ event.title }}</strong>」を削除してもよろしいですか？</p>
+<form method="post">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-danger">削除する</button>
+  <a href="{% url 'event_detail' event.pk %}" class="btn btn-secondary ms-2">キャンセル</a>
+</form>
+{% endblock %}
