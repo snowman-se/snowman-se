@@ -62,6 +62,10 @@ class EventDetailView(DetailView):
         if self.request.user.is_authenticated:
             user_attendance = Attendance.objects.filter(user=self.request.user, event=event).first()
         ctx['user_attendance'] = user_attendance
+        ctx['can_edit'] = (
+            self.request.user.is_authenticated and
+            (self.request.user == event.owner or self.request.user.is_staff)
+        )
         return ctx
 
 

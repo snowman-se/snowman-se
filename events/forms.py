@@ -14,6 +14,13 @@ class EventForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['poster'].help_text = 'JPG/PNG, 最大2MB'
         self.fields['start_at'].input_formats = ['%Y-%m-%dT%H:%M']
+        for field_name, field in self.fields.items():
+            if hasattr(field.widget, 'attrs'):
+                widget = field.widget
+                if widget.__class__.__name__ in ('CheckboxInput',):
+                    widget.attrs.setdefault('class', 'form-check-input')
+                else:
+                    widget.attrs.setdefault('class', 'form-control')
 
     def clean_poster(self):
         poster = self.cleaned_data.get('poster')

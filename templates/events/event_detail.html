@@ -52,7 +52,7 @@
       </div>
     </div>
 
-    {% if user.is_authenticated and (user == event.owner or user.is_staff) %}
+    {% if can_edit %}
     <div class="d-flex gap-2 mb-3">
       <a href="{% url 'event_edit' event.pk %}" class="btn btn-warning flex-fill">編集</a>
       <a href="{% url 'event_delete' event.pk %}" class="btn btn-danger flex-fill">削除</a>

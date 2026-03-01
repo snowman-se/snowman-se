@@ -17,17 +17,11 @@
           {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
         </div>
       {% else %}
-        <div>
-          {% if field.errors %}
-            {{ field|add_css_class:'form-control is-invalid' }}
-          {% else %}
-            {{ field }}
-          {% endif %}
-        </div>
-        {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+        {{ field }}
+        {% if field.help_text %}<div class="form-text text-muted">{{ field.help_text }}</div>{% endif %}
       {% endif %}
       {% for error in field.errors %}
-        <div class="text-danger small">{{ error }}</div>
+        <div class="text-danger small mt-1">{{ error }}</div>
       {% endfor %}
     </div>
   {% endfor %}
