@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="mb-4">イベント一覧</h2>
+
+<form method="get" class="row g-2 mb-4">
+  <div class="col-md-6">
+    <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="タイトル・主催者・会場・タグで検索">
+  </div>
+  <div class="col-md-3">
+    <select name="order" class="form-select">
+      <option value="start_at_asc" {% if order == 'start_at_asc' %}selected{% endif %}>開始日時 昇順</option>
+      <option value="start_at_desc" {% if order == 'start_at_desc' %}selected{% endif %}>開始日時 降順</option>
+      <option value="created_desc" {% if order == 'created_desc' %}selected{% endif %}>作成日時 降順</option>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <button type="submit" class="btn btn-primary w-100">検索</button>
+  </div>
+</form>
+
+{% if object_list %}
+<div class="row row-cols-1 row-cols-md-2 g-4">
+  {% for event in object_list %}
+  <div class="col">
+    <div class="card h-100">
+      {% if event.poster %}
+        <img src="{{ event.poster.url }}" class="card-img-top" style="max-height:180px;object-fit:cover;" alt="{{ event.title }}">
+      {% endif %}
+      <div class="card-body">
+        <h5 class="card-title"><a href="{% url 'event_detail' event.pk %}">{{ event.title }}</a></h5>
+        <p class="card-text text-muted mb-1">主催: {{ event.host }}</p>
+        <p class="card-text text-muted mb-1">会場: {{ event.venue }}</p>
+        <p class="card-text text-muted mb-1">開始: {{ event.start_at }}</p>
+        <p class="card-text mb-2">定員: {{ event.attendee_count }}/{{ event.capacity }}
+          {% if event.is_full %}<span class="badge bg-danger ms-1">満員</span>{% endif %}
+        </p>
+        {% for tag in event.tags %}
+          <span class="badge me-1" style="background-color:{{ tag.color }};">{{ tag.name }}</span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+  <p class="text-muted">イベントがありません。</p>
+{% endif %}
+
+{% if is_paginated %}
+<nav class="mt-4">
+  <ul class="pagination">
+    {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?q={{ q }}&order={{ order }}&page={{ page_obj.previous_page_number }}">前へ</a>
+      </li>
+    {% endif %}
+    <li class="page-item disabled">
+      <span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    </li>
+    {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?q={{ q }}&order={{ order }}&page={{ page_obj.next_page_number }}">次へ</a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>マイページ</h2>
+
+<ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="hosted-tab" data-bs-toggle="tab" data-bs-target="#hosted" type="button" role="tab">主催イベント</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="attending-tab" data-bs-toggle="tab" data-bs-target="#attending" type="button" role="tab">参加・待機</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab">セキュリティ</button>
+  </li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="hosted" role="tabpanel">
+    <h4>主催イベント</h4>
+    {% if hosted_events %}
+    <ul class="list-group">
+      {% for event in hosted_events %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <a href="{% url 'event_detail' event.pk %}">{{ event.title }}</a>
+          <span class="text-muted small">{{ event.start_at }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+      <p class="text-muted">主催イベントはありません。</p>
+    {% endif %}
+    <a href="/events/create/" class="btn btn-primary mt-3">イベントを作成</a>
+  </div>
+
+  <div class="tab-pane fade" id="attending" role="tabpanel">
+    <h4>参加中のイベント</h4>
+    {% if attending %}
+    <ul class="list-group mb-3">
+      {% for a in attending %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <a href="{% url 'event_detail' a.event.pk %}">{{ a.event.title }}</a>
+          <span class="text-muted small">{{ a.event.start_at }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+      <p class="text-muted">参加中のイベントはありません。</p>
+    {% endif %}
+
+    <h4>キャンセル待ちのイベント</h4>
+    {% if waiting %}
+    <ul class="list-group">
+      {% for a in waiting %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <a href="{% url 'event_detail' a.event.pk %}">{{ a.event.title }}</a>
+          <span class="badge bg-warning text-dark">待機中</span>
+        </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+      <p class="text-muted">キャンセル待ちのイベントはありません。</p>
+    {% endif %}
+  </div>
+
+  <div class="tab-pane fade" id="security" role="tabpanel">
+    <h4 class="mt-2">二段階認証 (2FA)</h4>
+    {% if two_factor_enabled %}
+      <div class="alert alert-success d-flex align-items-center gap-2">
+        <strong>有効</strong> — 二段階認証が設定されています。
+      </div>
+      <form method="post" action="{% url 'two_factor_disable' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-danger"
+                onclick="return confirm('二段階認証を無効にしますか？')">
+          二段階認証を無効にする
+        </button>
+      </form>
+    {% else %}
+      <div class="alert alert-warning d-flex align-items-center gap-2">
+        <strong>無効</strong> — 二段階認証が設定されていません。
+      </div>
+      <a href="{% url 'two_factor_setup' %}" class="btn btn-primary">
+        二段階認証を設定する
+      </a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

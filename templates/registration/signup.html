@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <h2 class="mb-4">新規登録</h2>
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      {# 氏名 #}
+      <div class="mb-3">
+        <label for="{{ form.full_name.id_for_label }}" class="form-label">
+          氏名 <span class="text-danger">*</span>
+        </label>
+        <input type="text"
+               name="full_name"
+               id="{{ form.full_name.id_for_label }}"
+               class="form-control {% if form.full_name.errors %}is-invalid{% endif %}"
+               value="{{ form.full_name.value|default:'' }}"
+               maxlength="150"
+               autofocus required>
+        {% for error in form.full_name.errors %}
+          <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      {# メールアドレスまたは携帯電話番号 #}
+      <div class="mb-3">
+        <label for="{{ form.email_or_phone.id_for_label }}" class="form-label">
+          メールアドレスまたは携帯電話番号 <span class="text-danger">*</span>
+        </label>
+        <input type="text"
+               name="email_or_phone"
+               id="{{ form.email_or_phone.id_for_label }}"
+               class="form-control {% if form.email_or_phone.errors %}is-invalid{% endif %}"
+               value="{{ form.email_or_phone.value|default:'' }}"
+               maxlength="150"
+               autocomplete="username"
+               required>
+        <div class="form-text text-muted">例: example@email.com または 08012345678</div>
+        {% for error in form.email_or_phone.errors %}
+          <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      {# パスワード #}
+      <div class="mb-3">
+        <label for="{{ form.password1.id_for_label }}" class="form-label">
+          パスワード <span class="text-danger">*</span>
+        </label>
+        <input type="password"
+               name="password1"
+               id="{{ form.password1.id_for_label }}"
+               class="form-control {% if form.password1.errors %}is-invalid{% endif %}"
+               autocomplete="new-password"
+               required>
+        {% for error in form.password1.errors %}
+          <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      {# パスワード（確認） #}
+      <div class="mb-3">
+        <label for="{{ form.password2.id_for_label }}" class="form-label">
+          パスワード（確認） <span class="text-danger">*</span>
+        </label>
+        <input type="password"
+               name="password2"
+               id="{{ form.password2.id_for_label }}"
+               class="form-control {% if form.password2.errors %}is-invalid{% endif %}"
+               autocomplete="new-password"
+               required>
+        {% for error in form.password2.errors %}
+          <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+          {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+        </div>
+      {% endif %}
+
+      <button type="submit" class="btn btn-primary w-100">登録する</button>
+    </form>
+    <div class="mt-3 text-center">
+      すでにアカウントをお持ちの方は <a href="{% url 'login' %}">ログイン</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
