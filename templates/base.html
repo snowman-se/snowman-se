@@ -26,6 +26,7 @@
             </form>
           </li>
         {% else %}
+          <li class="nav-item"><a class="nav-link" href="{% url 'signup' %}">新規登録</a></li>
           <li class="nav-item"><a class="nav-link" href="/accounts/login/">ログイン</a></li>
         {% endif %}
       </ul>

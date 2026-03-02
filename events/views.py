@@ -17,7 +17,7 @@ from django.views.generic import (
     CreateView, DeleteView, DetailView, ListView, TemplateView, UpdateView,
 )
 
-from .forms import EventForm
+from .forms import EventForm, SignUpForm
 from .models import Attendance, Event, EventTag, Tag, TOTPDevice
 
 logger = logging.getLogger(__name__)
@@ -136,6 +136,31 @@ class TwoFactorDisableView(LoginRequiredMixin, View):
         logger.info('2FA disabled for user: %s', request.user)
         messages.success(request, '二段階認証を無効にしました。')
         return redirect('my_page')
+
+
+class SignUpView(View):
+    """User registration: full name, email or phone, password."""
+
+    template_name = 'registration/signup.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('event_list')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request):
+        return render(request, self.template_name, {'form': SignUpForm()})
+
+    def post(self, request):
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            auth_login(request, user,
+                       backend='django.contrib.auth.backends.ModelBackend')
+            logger.info('New user registered: %s', user.username)
+            messages.success(request, 'アカウントを作成しました。ようこそ！')
+            return redirect('event_list')
+        return render(request, self.template_name, {'form': form})
 
 
 # --------------------------------------------------------------------------- #

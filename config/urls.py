@@ -9,12 +9,15 @@ from events.views import (
     TwoFactorVerifyView,
     TwoFactorSetupView,
     TwoFactorDisableView,
+    SignUpView,
 )
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     # Custom login (must come before the auth include to override the default)
     path('accounts/login/', CustomLoginView.as_view(), name='login'),
+    # User registration
+    path('accounts/register/', SignUpView.as_view(), name='signup'),
     # Two-factor authentication
     path('accounts/two-factor/setup/', TwoFactorSetupView.as_view(), name='two_factor_setup'),
     path('accounts/two-factor/verify/', TwoFactorVerifyView.as_view(), name='two_factor_verify'),
