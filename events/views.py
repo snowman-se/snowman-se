@@ -1,20 +1,146 @@
+import base64
+import io
 import logging
 
+import pyotp
+import qrcode
+from django.conf import settings as django_settings
 from django.contrib import messages
+from django.contrib.auth import login as auth_login
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import LoginView
 from django.db.models import Q
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from django.views.generic import (
     CreateView, DeleteView, DetailView, ListView, TemplateView, UpdateView,
 )
 
 from .forms import EventForm
-from .models import Attendance, Event, EventTag, Tag
+from .models import Attendance, Event, EventTag, Tag, TOTPDevice
 
 logger = logging.getLogger(__name__)
 
+# --------------------------------------------------------------------------- #
+# Authentication                                                                #
+# --------------------------------------------------------------------------- #
+
+class CustomLoginView(LoginView):
+    """Standard login, but redirects to TOTP verify step when 2FA is active."""
+
+    def form_valid(self, form):
+        user = form.get_user()
+        device = TOTPDevice.objects.filter(user=user, is_verified=True).first()
+        if device:
+            # Store partial-auth state in session; don't call auth_login yet.
+            self.request.session['pre_2fa_user_id'] = user.pk
+            self.request.session['pre_2fa_backend'] = user.backend
+            next_url = self.request.POST.get('next') or self.get_success_url()
+            self.request.session['pre_2fa_next'] = next_url
+            return redirect('two_factor_verify')
+        # No 2FA — normal login
+        return super().form_valid(form)
+
+
+class TwoFactorVerifyView(View):
+    """Enter TOTP code to complete a login that was interrupted for 2FA."""
+
+    template_name = 'registration/two_factor_verify.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if 'pre_2fa_user_id' not in request.session:
+            return redirect('login')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request):
+        return render(request, self.template_name)
+
+    def post(self, request):
+        from django.contrib.auth.models import User
+        user_id = request.session.get('pre_2fa_user_id')
+        try:
+            user = User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return redirect('login')
+
+        code = request.POST.get('code', '').strip()
+        try:
+            device = user.totp_device
+        except TOTPDevice.DoesNotExist:
+            messages.error(request, '二段階認証の設定が見つかりません。再度ログインしてください。')
+            return redirect('login')
+        totp = pyotp.TOTP(device.secret)
+        if totp.verify(code):
+            backend = request.session.pop('pre_2fa_backend',
+                                          'django.contrib.auth.backends.ModelBackend')
+            next_url = request.session.pop('pre_2fa_next',
+                                           django_settings.LOGIN_REDIRECT_URL)
+            del request.session['pre_2fa_user_id']
+            auth_login(request, user, backend=backend)
+            return redirect(next_url)
+
+        messages.error(request, 'コードが正しくありません。もう一度お試しください。')
+        return render(request, self.template_name)
+
+
+class TwoFactorSetupView(LoginRequiredMixin, View):
+    """Generate a TOTP secret and confirm it by asking the user to verify once."""
+
+    template_name = 'registration/two_factor_setup.html'
+
+    def _render(self, request, device):
+        totp = pyotp.TOTP(device.secret)
+        uri = totp.provisioning_uri(
+            name=request.user.username,
+            issuer_name='EventBoard+',
+        )
+        img = qrcode.make(uri)
+        buf = io.BytesIO()
+        img.save(buf, format='PNG')
+        qr_b64 = base64.b64encode(buf.getvalue()).decode()
+        return render(request, self.template_name, {
+            'secret': device.secret,
+            'qr_code': qr_b64,
+        })
+
+    def get(self, request):
+        device, _ = TOTPDevice.objects.get_or_create(
+            user=request.user,
+            defaults={'secret': pyotp.random_base32()},
+        )
+        if device.is_verified:
+            messages.info(request, '二段階認証はすでに有効です。')
+            return redirect('my_page')
+        return self._render(request, device)
+
+    def post(self, request):
+        device = get_object_or_404(TOTPDevice, user=request.user)
+        code = request.POST.get('code', '').strip()
+        totp = pyotp.TOTP(device.secret)
+        if totp.verify(code):
+            device.is_verified = True
+            device.save()
+            logger.info('2FA enabled for user: %s', request.user)
+            messages.success(request, '二段階認証を有効にしました。')
+            return redirect('my_page')
+        messages.error(request, 'コードが正しくありません。もう一度お試しください。')
+        return self._render(request, device)
+
+
+class TwoFactorDisableView(LoginRequiredMixin, View):
+    """Disable 2FA for the current user."""
+
+    def post(self, request):
+        TOTPDevice.objects.filter(user=request.user).delete()
+        logger.info('2FA disabled for user: %s', request.user)
+        messages.success(request, '二段階認証を無効にしました。')
+        return redirect('my_page')
+
+
+# --------------------------------------------------------------------------- #
+# Events                                                                        #
+# --------------------------------------------------------------------------- #
 
 class EventListView(ListView):
     model = Event
@@ -189,6 +315,8 @@ class MyPageView(LoginRequiredMixin, TemplateView):
         ctx['waiting'] = Attendance.objects.filter(
             user=self.request.user, is_waiting=True
         ).select_related('event')
+        device = TOTPDevice.objects.filter(user=self.request.user, is_verified=True).first()
+        ctx['two_factor_enabled'] = device is not None
         return ctx
 
 

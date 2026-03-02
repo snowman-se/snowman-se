@@ -78,6 +78,10 @@ LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/events/'
 LOGOUT_REDIRECT_URL = '/events/'
 
+# Email: console backend for development (prints emails to the terminal)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@eventboard.local'
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

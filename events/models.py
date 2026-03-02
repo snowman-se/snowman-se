@@ -58,3 +58,14 @@ class Attendance(models.Model):
 
     def __str__(self):
         return f'{self.user} - {self.event}'
+
+
+class TOTPDevice(models.Model):
+    """Stores a TOTP secret for a user's two-factor authentication."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='totp_device')
+    secret = models.CharField(max_length=64)
+    is_verified = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'TOTPDevice({self.user})'

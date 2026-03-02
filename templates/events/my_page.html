@@ -9,6 +9,9 @@
   <li class="nav-item" role="presentation">
     <button class="nav-link" id="attending-tab" data-bs-toggle="tab" data-bs-target="#attending" type="button" role="tab">参加・待機</button>
   </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab">セキュリティ</button>
+  </li>
 </ul>
 
 <div class="tab-content">
@@ -56,6 +59,29 @@
     </ul>
     {% else %}
       <p class="text-muted">キャンセル待ちのイベントはありません。</p>
+    {% endif %}
+  </div>
+
+  <div class="tab-pane fade" id="security" role="tabpanel">
+    <h4 class="mt-2">二段階認証 (2FA)</h4>
+    {% if two_factor_enabled %}
+      <div class="alert alert-success d-flex align-items-center gap-2">
+        <strong>有効</strong> — 二段階認証が設定されています。
+      </div>
+      <form method="post" action="{% url 'two_factor_disable' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-danger"
+                onclick="return confirm('二段階認証を無効にしますか？')">
+          二段階認証を無効にする
+        </button>
+      </form>
+    {% else %}
+      <div class="alert alert-warning d-flex align-items-center gap-2">
+        <strong>無効</strong> — 二段階認証が設定されていません。
+      </div>
+      <a href="{% url 'two_factor_setup' %}" class="btn btn-primary">
+        二段階認証を設定する
+      </a>
     {% endif %}
   </div>
 </div>
