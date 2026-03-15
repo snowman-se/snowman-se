@@ -1,9 +1,11 @@
 'use strict';
 
 // ===== Constants =====
-const TOTAL_CANDIES = 60; // 30 × 2 sets
-const CANDY_COLORS  = ['blue', 'red', 'yellow'];
-const COLOR_LABELS  = { blue: '青', red: '赤', yellow: '黄色' };
+const TOTAL_CANDIES = 40;
+const CANDY_COLORS  = ['blue', 'red', 'yellow', 'orange'];
+const COLOR_LABELS  = { blue: '青', red: '赤', yellow: '黄色', orange: 'オレンジ' };
+// Exact count per color (must sum to TOTAL_CANDIES)
+const COLOR_COUNTS  = { red: 28, blue: 4, yellow: 4, orange: 4 };
 const FLAVOR_LABELS = ['バナナ', 'イチゴ', 'パイナップル', 'サイダー'];
 
 // ===== State =====
@@ -39,12 +41,10 @@ function randomFlavor() {
 function buildThreads() {
   threadsArea.innerHTML = '';
 
-  // Distribute colors evenly: 20 each (60 total / 3 colors)
+  // Build color array using explicit per-color counts: red=28, blue=4, yellow=4, orange=4
   const baseColors = [];
-  CANDY_COLORS.forEach(c => {
-    for (let i = 0; i < TOTAL_CANDIES / CANDY_COLORS.length; i++) {
-      baseColors.push(c);
-    }
+  Object.entries(COLOR_COUNTS).forEach(([c, n]) => {
+    for (let i = 0; i < n; i++) baseColors.push(c);
   });
   candyColors = shuffle(baseColors);
   stock       = TOTAL_CANDIES;

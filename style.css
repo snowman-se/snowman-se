@@ -411,6 +411,7 @@ body {
 .candy-dot.blue   { background: #4a90d9; }
 .candy-dot.red    { background: #e84040; }
 .candy-dot.yellow { background: #f5c300; }
+.candy-dot.orange { background: #ff8c00; }
 
 @keyframes pop {
   0%   { transform: scale(0); opacity: 0; }
@@ -461,6 +462,7 @@ body {
 .result-candy.blue   { background: radial-gradient(circle at 35% 35%, #8ac5f5, #1565c0); }
 .result-candy.red    { background: radial-gradient(circle at 35% 35%, #ff8a8a, #c0392b); }
 .result-candy.yellow { background: radial-gradient(circle at 35% 35%, #ffe57a, #f9a825); }
+.result-candy.orange { background: radial-gradient(circle at 35% 35%, #ffd080, #e65c00); }
 .result-candy.hidden { background: #eee; }
 
 .result-text {
@@ -473,6 +475,7 @@ body {
 .result-text .color-name.blue   { color: #1565c0; }
 .result-text .color-name.red    { color: #c0392b; }
 .result-text .color-name.yellow { color: #e65100; }
+.result-text .color-name.orange { color: #d35400; }
 
 /* ===== History ===== */
 .history-panel {
@@ -524,6 +527,7 @@ body {
 .history-dot.blue   { background: #4a90d9; }
 .history-dot.red    { background: #e84040; }
 .history-dot.yellow { background: #f5c300; }
+.history-dot.orange { background: #ff8c00; }
 
 /* ===== Reset Button ===== */
 .reset-btn {
