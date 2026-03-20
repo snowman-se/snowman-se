@@ -3,8 +3,120 @@
 <head>
   <meta charset="UTF-8">
   <title>Hello World</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 2em; }
+    #clock { font-size: 2em; margin: 0.5em 0; }
+    #alarm-status { font-size: 1.2em; color: #555; margin: 1em 0; }
+    #alarm-message { font-size: 1.5em; font-weight: bold; color: #c00; min-height: 2em; margin: 1em 0; }
+    .alarm-section { border: 1px solid #ccc; border-radius: 8px; padding: 1em; margin: 1em auto; max-width: 480px; }
+    label { display: block; margin: 0.4em 0 0.1em; }
+    input[type="time"] { font-size: 1em; padding: 0.3em; }
+    button { font-size: 1em; padding: 0.5em 1.5em; margin-top: 0.8em; cursor: pointer; }
+  </style>
 </head>
 <body>
   <p>おはようございます</p>
+
+  <div id="clock"></div>
+
+  <div class="alarm-section">
+    <h2>アラーム設定</h2>
+
+    <label for="morning-time">朝礼アラーム時刻</label>
+    <input type="time" id="morning-time" value="08:00">
+
+    <label for="evening-time">帰宅アラーム時刻</label>
+    <input type="time" id="evening-time" value="18:00">
+
+    <br>
+    <button id="toggle-btn" onclick="toggleAlarms()">アラームを開始</button>
+  </div>
+
+  <div id="alarm-message"></div>
+  <div id="alarm-status">アラームは停止中です。</div>
+
+  <script>
+    const MORNING_MSG = '朝8時になりました。朝礼お願いします';
+    const EVENING_MSG = '明日もよろしくお願いします';
+
+    let alarmsActive = false;
+    let tickInterval = null;
+    let firedToday = {};
+    let lastDate = new Date().toDateString();
+
+    function currentHHMM() {
+      const now = new Date();
+      return now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+    }
+
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clock').textContent = now.toLocaleTimeString('ja-JP');
+    }
+
+    function speak(message) {
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(message);
+        utterance.lang = 'ja-JP';
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    function showMessage(message) {
+      const el = document.getElementById('alarm-message');
+      el.textContent = message;
+      setTimeout(() => { if (el.textContent === message) el.textContent = ''; }, 10000);
+    }
+
+    function checkAlarms() {
+      const now = new Date();
+      const today = now.toDateString();
+
+      // Reset fired flags each new calendar day
+      if (today !== lastDate) {
+        firedToday = {};
+        lastDate = today;
+      }
+
+      const hhmm = currentHHMM();
+      const morningTime = document.getElementById('morning-time').value;
+      const eveningTime = document.getElementById('evening-time').value;
+
+      if (hhmm === morningTime && !firedToday['morning']) {
+        firedToday['morning'] = true;
+        showMessage(MORNING_MSG);
+        speak(MORNING_MSG);
+      }
+      if (hhmm === eveningTime && !firedToday['evening']) {
+        firedToday['evening'] = true;
+        showMessage(EVENING_MSG);
+        speak(EVENING_MSG);
+      }
+    }
+
+    function toggleAlarms() {
+      alarmsActive = !alarmsActive;
+      const btn = document.getElementById('toggle-btn');
+      const status = document.getElementById('alarm-status');
+
+      if (alarmsActive) {
+        firedToday = {};
+        lastDate = new Date().toDateString();
+        tickInterval = setInterval(checkAlarms, 1000);
+        btn.textContent = 'アラームを停止';
+        status.textContent = 'アラームは動作中です。';
+      } else {
+        clearInterval(tickInterval);
+        tickInterval = null;
+        btn.textContent = 'アラームを開始';
+        status.textContent = 'アラームは停止中です。';
+        document.getElementById('alarm-message').textContent = '';
+      }
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock();
+  </script>
 </body>
 </html>
