@@ -16,6 +16,7 @@ Press 'q' to quit webcam / video playback.
 """
 
 import argparse
+import os
 import sys
 import cv2
 import numpy as np
@@ -158,7 +159,7 @@ def process_image(path, detect_fn):
 
     print(f"Detected {len(faces)} face(s) in '{path}'")
 
-    output_path = "output_" + path.split("/")[-1]
+    output_path = "output_" + os.path.basename(path)
     cv2.imwrite(output_path, result)
     print(f"Result saved to '{output_path}'")
 
